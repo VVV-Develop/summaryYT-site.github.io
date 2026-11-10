@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube AI Summary & Transcript — Мгновенные конспекты и транскрипция видео с ChatGPT и Gemini</title>
+  <meta name="description" content="Официальный сайт расширения YouTube AI Summary: мгновенная расшифровка видео с таймкодами, краткие тезисы с ChatGPT и Gemini, AI-чат с видео и экспорт в Notion.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: #111726;
+      --bg-card-hover: #172033;
+      --accent: #ff2a44;
+      --accent-glow: rgba(255, 42, 68, 0.28);
+      --accent-gradient: linear-gradient(135deg, #ff2a44 0%, #dc2626 100%);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #1e293b;
+      --border-accent: rgba(255, 42, 68, 0.4);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* HEADER */
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-badge {
+      background: var(--accent-gradient);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    nav {
+      display: flex;
+      gap: 24px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    nav a:hover {
+      color: var(--text-main);
+    }
+
+    .btn-header {
+      background: var(--accent-gradient);
+      color: #fff;
+      font-weight: 700;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-header:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    /* HERO */
+    .hero {
+      padding: 90px 0 60px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-accent);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: 3.3rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1.5px;
+      margin-bottom: 22px;
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto 36px;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: #fff;
+      font-weight: 800;
+      padding: 16px 36px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      box-shadow: 0 6px 24px var(--accent-glow);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(255, 42, 68, 0.45);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      font-weight: 600;
+      padding: 16px 28px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+      border-color: #334155;
+    }
+
+    /* FEATURES GRID */
+    .section-title {
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+
+    .section-desc {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 620px;
+      margin: 0 auto 50px;
+    }
+
+    .features {
+      padding: 70px 0;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-accent);
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* PRICING */
+    .pricing {
+      padding: 80px 0;
+      background: linear-gradient(180deg, rgba(17, 23, 38, 0.4) 0%, transparent 100%);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 28px;
+      max-width: 1000px;
+      margin: 0 auto;
+      align-items: stretch;
+    }
+
+    .pricing-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 30px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .pricing-card.featured {
+      border: 2px solid var(--accent);
+      background: #151c2e;
+      transform: scale(1.03);
+      box-shadow: 0 12px 36px rgba(255, 42, 68, 0.16);
+    }
+
+    .badge-popular {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent-gradient);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 50px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pricing-tier {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .pricing-price {
+      font-size: 2.8rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .pricing-price span {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+    }
+
+    .pricing-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      min-height: 40px;
+    }
+
+    .pricing-list {
+      list-style: none;
+      margin-bottom: 30px;
+      flex-grow: 1;
+    }
+
+    .pricing-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 0.92rem;
+      color: #e2e8f0;
+    }
+
+    .pricing-list li::before {
+      content: "✓";
+      color: #10b981;
+      font-weight: 800;
+    }
+
+    .btn-buy {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .btn-buy-primary {
+      background: var(--accent-gradient);
+      color: #fff;
+    }
+
+    .btn-buy-primary:hover {
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .btn-buy-secondary {
+      background: #1e293b;
+      color: #fff;
+    }
+
+    .btn-buy-secondary:hover {
+      background: #334155;
+    }
+
+    /* DELIVERY & PAYMENT BADGES */
+    .payment-info {
+      text-align: center;
+      margin-top: 40px;
+      padding: 24px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .payment-info h4 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    .payment-info p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* LEGAL & OFFER */
+    .legal-section {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .accordion-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      padding: 18px 24px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    .accordion-header:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .accordion-content {
+      padding: 0 24px 24px;
+      display: none;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      border-top: 1px solid var(--border);
+      max-height: 450px;
+      overflow-y: auto;
+    }
+
+    .accordion-item.active .accordion-content {
+      display: block;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #05080e;
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .footer-col h5 {
+      color: var(--text-main);
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+    }
+
+    .footer-col p {
+      margin-bottom: 8px;
+    }
+
+    .requisites-box {
+      background: #0d131f;
+      border: 1px solid var(--border);
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.2rem; }
+      .pricing-card.featured { transform: none; }
+      .footer-content { grid-template-columns: 1fr; }
+      nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container header-inner">
+      <div class="logo">
+        <span>🎬 YouTube AI Summary</span>
+        <span class="logo-badge">Pro Studio</span>
+      </div>
+      <nav>
+        <a href="#features">Возможности</a>
+        <a href="#pricing">Тарифы</a>
+        <a href="#delivery">Оплата и доставка</a>
+        <a href="#legal">Оферта</a>
+      </nav>
+      <a href="#pricing" class="btn-header">Подключить PRO</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <h1>Узнавайте главное из любого видео<br>за считанные секунды</h1>
+      <p>YouTube AI Summary & Transcript автоматически расшифровывает любые ролики на YouTube, создает точные тезисные конспекты, переводит субтитры на 40+ языков и отвечает на любые ваши вопросы по видео через встроенный AI-чат.</p>
+      <div class="hero-actions">
+        <a href="#pricing" class="btn-primary">Получить доступ к PRO →</a>
+        <a href="#features" class="btn-secondary">Узнать все функции</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="container">
+      <h2 class="section-title">Все инструменты для умного просмотра YouTube</h2>
+      <p class="section-desc">Экономьте десятки часов времени при обучении, работе с лекциями, подкастами и интервью.</p>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-icon">⚡</span>
+          <h3>Мгновенная AI-выжимка (Summary)</h3>
+          <p>Одно нажатие — и перед вами структурированный конспект любого часового подкаста или обучающего ролика с ключевыми выводами и таймлайном.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📝</span>
+          <h3>Полный интерактивный транскрипт</h3>
+          <p>Точный текст видео со встроенным поиском и таймкодами. Нажимайте на любое слово в тексте, чтобы мгновенно перемотать видео на нужный момент.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">💬</span>
+          <h3>Интерактивный AI-чат с видео</h3>
+          <p>Задавайте вопросы прямо по содержанию ролика: нейросеть найдет нужный фрагмент и даст развернутый ответ со ссылкой на секунду видео.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🎙️</span>
+          <h3>Голосовой ввод (Speech-to-Text)</h3>
+          <p>Задавайте вопросы голосом прямо в чат без набора на клавиатуре для максимальной скорости работы при просмотре лекций.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🌍</span>
+          <h3>Перевод на 40+ языков</h3>
+          <p>Смотрите ролики на английском, китайском, немецком или японском с синхронным переводом транскрипта и саммари на русский язык в реальном времени.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📥</span>
+          <h3>Экспорт в Notion и Obsidian</h3>
+          <p>Сохраняйте готовые конспекты и расшифровки в Markdown, PDF, Notion или Anki в один клик для последующего повторения.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <h2 class="section-title">Тарифные планы YouTube AI Summary PRO</h2>
+      <p class="section-desc">Снимите все суточные ограничения и получите доступ к продвинутым моделям искусственного интеллекта.</p>
+
+      <div class="pricing-grid">
+        <!-- 1 MONTH -->
+        <div class="pricing-card">
+          <div class="pricing-tier">1 Месяц PRO</div>
+          <div class="pricing-price">149 ₽ <span>/ месяц</span></div>
+          <p class="pricing-desc">Идеально для активной учебы или подготовки к сессии.</p>
+          <ul class="pricing-list">
+            <li>Безлимитные AI-саммаризация и конспекты</li>
+            <li>Неограниченные запросы в AI-чат</li>
+            <li>Мгновенный перевод на 40+ языков</li>
+            <li>Экспорт в Markdown / PDF / Notion</li>
+          </ul>
+          <a href="https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=youtubesummary&InvId=201&Culture=ru&Encoding=utf-8&OutSum=149.00&Description=YouTube+AI+Summary+PRO+1+Month" class="btn-buy btn-buy-secondary" target="_blank">Оформить на 1 месяц</a>
+        </div>
+
+        <!-- 1 YEAR (FEATURED) -->
+        <div class="pricing-card featured">
+          <span class="badge-popular">Выгода 72%</span>
+          <div class="pricing-tier">1 Год PRO</div>
+          <div class="pricing-price">499 ₽ <span>/ год</span></div>
+          <p class="pricing-desc">Самый выгодный тариф для специалистов, аналитиков и студентов.</p>
+          <ul class="pricing-list">
+            <li><strong>Все возможности тарифа PRO на 12 месяцев</strong></li>
+            <li>Приоритетный доступ к флагманским моделям AI</li>
+            <li>Голосовой ввод и голосовой поиск по субтитрам</li>
+            <li>Приоритетная очередь генерации ответов</li>
+            <li>Все будущие обновления и новые функции</li>
+          </ul>
+          <a href="https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=youtubesummary&InvId=202&Culture=ru&Encoding=utf-8&OutSum=499.00&Description=YouTube+AI+Summary+PRO+1+Year" class="btn-buy btn-buy-primary" target="_blank">Оформить на 1 год</a>
+        </div>
+
+        <!-- LIFETIME -->
+        <div class="pricing-card">
+          <div class="pricing-tier">Навсегда (VIP)</div>
+          <div class="pricing-price">999 ₽ <span>единоразово</span></div>
+          <p class="pricing-desc">Один платеж — вечный безлимитный доступ без продлений и списаний.</p>
+          <ul class="pricing-list">
+            <li><strong>Бессрочная пожизненная лицензия</strong></li>
+            <li>Неограниченное число браузеров и ПК</li>
+            <li>Максимальный приоритет обработки запросов</li>
+            <li>Прямой контакт с разработчиком расширения</li>
+            <li>Гарантированное отсутствие скрытых списаний</li>
+          </ul>
+          <a href="https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=youtubesummary&InvId=203&Culture=ru&Encoding=utf-8&OutSum=999.00&Description=YouTube+AI+Summary+PRO+Lifetime+VIP" class="btn-buy btn-buy-secondary" target="_blank">Получить навсегда</a>
+        </div>
+      </div>
+
+      <!-- DELIVERY & REFUND INFO -->
+      <div class="payment-info" id="delivery">
+        <h4>⚡ Порядок предоставления и моментальная выдача товара</h4>
+        <p>
+          Программное обеспечение «YouTube AI Summary & Transcript» является цифровым лицензионным продуктом. Активация платных функций происходит <strong>автоматически и моментально</strong> сразу после подтверждения транзакции: лицензионный ключ или PRO-активация отображается на экране подтверждения оплаты и параллельно отправляется на email покупателя.
+        </p>
+        <p style="margin-top: 10px;">
+          <strong>Способы оплаты:</strong> Банковские карты (МИР, Visa, Mastercard), Система быстрых платежей (СБП), SberPay, Tinkoff Pay через официальный сертифицированный процессинг Robokassa.
+        </p>
+        <p style="margin-top: 10px;">
+          <strong>Гарантия возврата:</strong> В случае возникновения технических ошибок или несовместимости расширения с вашим браузером, покупатель имеет право на полный возврат уплаченных средств в течение 14 календарных дней с даты покупки по обращению на email службы поддержки.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEGAL ACCORDION -->
+  <section class="legal-section" id="legal">
+    <div class="container">
+      <h2 class="section-title" style="font-size: 1.8rem;">Юридические документы</h2>
+      <p class="section-desc" style="margin-bottom: 30px;">Ознакомьтесь с условиями официальной публичной оферты и политики обработки данных.</p>
+
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>📄 Публичная оферта на заключение лицензионного договора</span>
+          <span>▼</span>
+        </div>
+        <div class="accordion-content">
+          <p><strong>1. Общие положения</strong><br>
+          1.1. Настоящий документ является официальным предложением (публичной офертой) плательщика налога на профессиональный доход (самозанятого) Сокольского Василия Германовича (ИНН: 263098675158, email: vicemaisterdevelop@gmail.com) в соответствии со статьей 437 Гражданского кодекса Российской Федерации.<br>
+          1.2. Оплата лицензии программного обеспечения «YouTube AI Summary & Transcript» (версия PRO) на сайте является полным и безоговорочным акцептом настоящей публичной оферты.<br>
+          1.3. Предметом договора является предоставление неисключительной лицензии на использование расширенного функционала браузерного расширения для транскрибирования и саммаризации видеоконтента.<br><br>
+          <strong>2. Порядок расчетов и выдача доступа</strong><br>
+          2.1. Цены на лицензионный доступ установлены в валюте Российской Федерации (рубли РФ) и указаны в разделе «Тарифы» настоящего сайта.<br>
+          2.2. Оплата производится через процессинговый центр платежной системы Robokassa по стандартам безопасности Банка России.<br>
+          2.3. Доступ активируется автоматически сразу после зачисления средств: цифровой ключ активации или подтверждение PRO-статуса направляется на электронную почту Покупателя.<br><br>
+          <strong>3. Условия и порядок возврата средств</strong><br>
+          3.1. В соответствии с законодательством Российской Федерации возврат средств за цифровой товар надлежащего качества после активации не производится.<br>
+          3.2. При возникновении неустранимых технических сбоев в работе сервиса, подтвержденных поддержкой, возврат средств производится в 100% объеме по письменному заявлению Покупателя на электронную почту vicemaisterdevelop@gmail.com в течение 14 дней.</p>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <span>🔒 Политика конфиденциальности и обработки персональных данных</span>
+          <span>▼</span>
+        </div>
+        <div class="accordion-content">
+          <p><strong>1. Обработка персональных данных</strong><br>
+          1.1. Сервис обрабатывает исключительно адрес электронной почты Покупателя для доставки лицензионного доступа и электронного чека в соответствии с Федеральным законом № 152-ФЗ «О персональных данных».<br>
+          1.2. Просматриваемые пользователем видеоролики и персональные данные учетных записей YouTube не сохраняются и не передаются третьим лицам.<br><br>
+          <strong>2. Безопасность онлайн-платежей</strong><br>
+          2.1. Вся платежная информация обрабатывается исключительно на защищенных страницах процессингового центра Robokassa по протоколу PCI DSS. Сайт сервиса не имеет доступа к данным банковских карт Покупателя.<br>
+          2.2. Сервис обязуется не распространять персональные данные пользователей и обеспечивать конфиденциальность полученной информации.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h5>О сервисе YouTube AI Summary</h5>
+          <p>Профессиональный инструмент на базе искусственного интеллекта для конспектирования, транскрибирования и быстрого анализа видеоконтента.</p>
+          <p style="margin-top: 12px; color: #64748b;">© 2026 YouTube AI Summary & Transcript. Все права защищены.</p>
+        </div>
+
+        <div class="footer-col">
+          <h5>Навигация</h5>
+          <p><a href="#features">Возможности</a></p>
+          <p><a href="#pricing">Тарифные планы</a></p>
+          <p><a href="#delivery">Оплата и доставка</a></p>
+          <p><a href="#legal">Публичная оферта</a></p>
+        </div>
+
+        <div class="footer-col">
+          <h5>Реквизиты и контакты</h5>
+          <div class="requisites-box">
+            Самозанятый гражданин РФ<br>
+            ФИО: Сокольский Василий Германович<br>
+            ИНН: 263098675158<br>
+            Email: vicemaisterdevelop@gmail.com<br>
+            Режим поддержки: Пн-Вс, 10:00-20:00
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        Платежи обрабатываются сертифицированным процессинговым центром Robokassa по стандартам безопасности Банка России.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleAccordion(header) {
+      const item = header.parentElement;
+      item.classList.toggle('active');
+    }
+  </script>
+</body>
+</html>
